@@ -5,6 +5,8 @@
 #error "This file should not be included directly. Include odrive_main.h instead."
 #endif
 
+#include <array>
+
 class Controller {
 public:
     enum Error_t {
@@ -12,6 +14,16 @@ public:
         ERROR_OVERSPEED = 0x01,
     };
 
+
+    typedef struct {
+        int index;
+        std::array<float, 3600> cogging_map;
+        bool use_anticogging = false;
+        bool calib_anticogging = false;
+        float calib_pos_threshold = 1.0f;
+        float calib_vel_threshold = 1.0f;
+    } Anticogging_t;
+    
     // Note: these should be sorted from lowest level of control to
     // highest level of control, to allow "<" style comparisons.
     enum ControlMode_t{
@@ -32,6 +44,7 @@ public:
         float vel_limit_tolerance = 1.2f;  // ratio to vel_lim. 0.0f to disable
         float vel_ramp_rate = 10000.0f;  // [(counts/s) / s]
         bool setpoints_in_cpr = false;
+        Anticogging_t anticogging;
     };
 
     Controller(Config_t& config);
@@ -59,23 +72,6 @@ public:
     // - make calibration user experience similar to motor & encoder calibration
     // - use python tools to Fourier transform and write back the smoothed map or Fourier coefficients
     // - make the calibration persistent
-
-    typedef struct {
-        int index;
-        float *cogging_map;
-        bool use_anticogging;
-        bool calib_anticogging;
-        float calib_pos_threshold;
-        float calib_vel_threshold;
-    } Anticogging_t;
-    Anticogging_t anticogging_ = {
-        .index = 0,
-        .cogging_map = nullptr,
-        .use_anticogging = false,
-        .calib_anticogging = false,
-        .calib_pos_threshold = 1.0f,
-        .calib_vel_threshold = 1.0f,
-    };
 
     Error_t error_ = ERROR_NONE;
     // variables exposed on protocol
@@ -107,7 +103,12 @@ public:
                 make_protocol_property("vel_limit", &config_.vel_limit),
                 make_protocol_property("vel_limit_tolerance", &config_.vel_limit_tolerance),
                 make_protocol_property("vel_ramp_rate", &config_.vel_ramp_rate),
-                make_protocol_property("setpoints_in_cpr", &config_.setpoints_in_cpr)
+                make_protocol_property("setpoints_in_cpr", &config_.setpoints_in_cpr),
+                make_protocol_object("anticogging",
+                    make_protocol_property("use_anticogging", &config_.anticogging.use_anticogging),
+                    make_protocol_property("calib_pos_threshold", &config_.anticogging.calib_pos_threshold),
+                    make_protocol_property("calib_vel_threshold", &config_.anticogging.calib_vel_threshold)
+                )
             ),
             make_protocol_function("set_pos_setpoint", *this, &Controller::set_pos_setpoint,
                 "pos_setpoint", "vel_feed_forward", "current_feed_forward"),
