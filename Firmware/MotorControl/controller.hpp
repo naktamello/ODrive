@@ -16,10 +16,9 @@ public:
 
 
     typedef struct {
-        int index;
         std::array<float, 3600> cogging_map;
-        bool use_anticogging = false;
-        bool calib_anticogging = false;
+        bool persist_map = false;
+        bool pre_calibrated = false;
         float calib_pos_threshold = 1.0f;
         float calib_vel_threshold = 1.0f;
     } Anticogging_t;
@@ -85,6 +84,10 @@ public:
 
     uint32_t traj_start_loop_count_ = 0;
 
+    bool use_anticogging_ = false;
+    bool calib_anticogging_ = false;
+    int anticogging_index_ = 0;
+
     // Communication protocol definitions
     auto make_protocol_definitions() {
         return make_protocol_member_list(
@@ -95,6 +98,7 @@ public:
             make_protocol_property("current_setpoint", &current_setpoint_),
             make_protocol_property("vel_ramp_target", &vel_ramp_target_),
             make_protocol_property("vel_ramp_enable", &vel_ramp_enable_),
+            make_protocol_ro_property("is_anticogging_active", &use_anticogging_),
             make_protocol_object("config",
                 make_protocol_property("control_mode", &config_.control_mode),
                 make_protocol_property("pos_gain", &config_.pos_gain),
@@ -105,7 +109,7 @@ public:
                 make_protocol_property("vel_ramp_rate", &config_.vel_ramp_rate),
                 make_protocol_property("setpoints_in_cpr", &config_.setpoints_in_cpr),
                 make_protocol_object("anticogging",
-                    make_protocol_property("use_anticogging", &config_.anticogging.use_anticogging),
+                    make_protocol_property("persist_map", &config_.anticogging.persist_map),
                     make_protocol_property("calib_pos_threshold", &config_.anticogging.calib_pos_threshold),
                     make_protocol_property("calib_vel_threshold", &config_.anticogging.calib_vel_threshold)
                 )

@@ -61,7 +61,7 @@ void Controller::move_to_pos(float goal_point) {
 void Controller::start_anticogging_calibration() {
     // Ensure the cogging map was correctly allocated earlier and that the motor is capable of calibrating
     if (axis_->error_ == Axis::ERROR_NONE) {
-        config_.anticogging.calib_anticogging = true;
+        calib_anticogging_ = true;
     }
 }
 
@@ -73,20 +73,20 @@ void Controller::start_anticogging_calibration() {
  * This holding current is added as a feedforward term in the control loop.
  */
 bool Controller::anticogging_calibration(float pos_estimate, float vel_estimate) {
-    if (config_.anticogging.calib_anticogging) {
+    if (calib_anticogging_) {
         float pos_err = pos_setpoint_ - pos_estimate;
         if (std::abs(pos_err) <= config_.anticogging.calib_pos_threshold &&
             std::abs(vel_estimate) <= config_.anticogging.calib_vel_threshold) {
-            config_.anticogging.cogging_map[config_.anticogging.index++] = vel_integrator_current_;
+            config_.anticogging.cogging_map[anticogging_index_++] = vel_integrator_current_;
         }
-        if (config_.anticogging.index < static_cast<int>(config_.anticogging.cogging_map.size())) {
-            set_pos_setpoint(config_.anticogging.index * (static_cast<float>(axis_->encoder_.config_.cpr) / config_.anticogging.cogging_map.size()), 0.0f, 0.0f);
+        if (anticogging_index_ < static_cast<int>(config_.anticogging.cogging_map.size())) {
+            set_pos_setpoint(anticogging_index_ * (static_cast<float>(axis_->encoder_.config_.cpr) / config_.anticogging.cogging_map.size()), 0.0f, 0.0f);
             return false;
         } else {
-            config_.anticogging.index = 0;
+            anticogging_index_ = 0;
             set_pos_setpoint(0.0f, 0.0f, 0.0f);  // Send the motor home
-            config_.anticogging.use_anticogging = true;  // We're good to go, enable anti-cogging
-            config_.anticogging.calib_anticogging = false;
+            use_anticogging_ = true;  // We're good to go, enable anti-cogging
+            calib_anticogging_ = false;
             return true;
         }
     }
@@ -170,7 +170,7 @@ bool Controller::update(float pos_estimate, float vel_estimate, float* current_s
     // Anti-cogging is enabled after calibration
     // We get the current position and apply a current feed-forward
     // ensuring that we handle negative encoder positions properly (-1 == motor->encoder.encoder_cpr - 1)
-    if (config_.anticogging.use_anticogging) {
+    if (use_anticogging_) {
         Iq += config_.anticogging.cogging_map[mod(static_cast<int>(anticogging_pos / config_.anticogging.cogging_map.size() * axis_->encoder_.config_.cpr), axis_->encoder_.config_.cpr)];
     }
 

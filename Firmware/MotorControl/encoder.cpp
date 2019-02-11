@@ -55,6 +55,11 @@ void Encoder::enc_index_cb() {
             is_ready_ = false;
         }
         index_found_ = true;
+
+        // If we previously saved the cogging map with the index pin, we've now aligned everything
+        if(axis_->controller_.config_.anticogging.pre_calibrated && axis_->controller_.config_.anticogging.persist_map) {
+            axis_->controller_.use_anticogging_ = true;
+        }
     }
 }
 
