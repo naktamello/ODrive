@@ -75,8 +75,8 @@ void Controller::start_anticogging_calibration() {
 bool Controller::anticogging_calibration(float pos_estimate, float vel_estimate) {
     if (config_.anticogging.calib_anticogging) {
         float pos_err = pos_setpoint_ - pos_estimate;
-        if (fabsf(pos_err) <= config_.anticogging.calib_pos_threshold &&
-            fabsf(vel_estimate) <= config_.anticogging.calib_vel_threshold) {
+        if (std::abs(pos_err) <= config_.anticogging.calib_pos_threshold &&
+            std::abs(vel_estimate) <= config_.anticogging.calib_vel_threshold) {
             config_.anticogging.cogging_map[config_.anticogging.index++] = vel_integrator_current_;
         }
         if (config_.anticogging.index < static_cast<int>(config_.anticogging.cogging_map.size())) {
