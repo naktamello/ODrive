@@ -18,7 +18,6 @@ public:
     typedef struct {
         std::array<float, 3600> cogging_map;
         bool persist_map = false;
-        bool pre_calibrated = false;
         float calib_pos_threshold = 1.0f;
         float calib_vel_threshold = 1.0f;
     } Anticogging_t;
