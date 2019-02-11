@@ -85,6 +85,7 @@ public:
 
     bool use_anticogging_ = false;
     bool calib_anticogging_ = false;
+    bool anticogging_direction_ = true;
     int anticogging_index_ = 0;
 
     // Communication protocol definitions

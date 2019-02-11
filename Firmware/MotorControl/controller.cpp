@@ -62,6 +62,8 @@ void Controller::start_anticogging_calibration() {
     // Ensure the cogging map was correctly allocated earlier and that the motor is capable of calibrating
     if (axis_->error_ == Axis::ERROR_NONE) {
         calib_anticogging_ = true;
+        anticogging_direction_ = true;  // Reset direction
+        use_anticogging_ = false;       // Disable anticogging while we're running calibration
     }
 }
 
@@ -75,19 +77,36 @@ void Controller::start_anticogging_calibration() {
 bool Controller::anticogging_calibration(float pos_estimate, float vel_estimate) {
     if (calib_anticogging_) {
         float pos_err = pos_setpoint_ - pos_estimate;
+
         if (std::abs(pos_err) <= config_.anticogging.calib_pos_threshold &&
             std::abs(vel_estimate) <= config_.anticogging.calib_vel_threshold) {
-            config_.anticogging.cogging_map[anticogging_index_++] = vel_integrator_current_;
+            
+            if(anticogging_direction_)
+                config_.anticogging.cogging_map[anticogging_index_] = vel_integrator_current_ / 2.0f;
+            else
+                config_.anticogging.cogging_map[anticogging_index_] += vel_integrator_current_ / 2.0f;
         }
-        if (anticogging_index_ < static_cast<int>(config_.anticogging.cogging_map.size())) {
-            set_pos_setpoint(anticogging_index_ * (static_cast<float>(axis_->encoder_.config_.cpr) / config_.anticogging.cogging_map.size()), 0.0f, 0.0f);
-            return false;
+
+        if (anticogging_direction_) {
+            anticogging_index_++;
+            if (anticogging_index_ < static_cast<int>(config_.anticogging.cogging_map.size())) {
+                set_pos_setpoint(anticogging_index_ * (static_cast<float>(axis_->encoder_.config_.cpr) / config_.anticogging.cogging_map.size()), 0.0f, 0.0f);
+                return false;
+            } else {
+                anticogging_direction_ = false;
+            }
         } else {
-            anticogging_index_ = 0;
-            set_pos_setpoint(0.0f, 0.0f, 0.0f);  // Send the motor home
-            use_anticogging_ = true;  // We're good to go, enable anti-cogging
-            calib_anticogging_ = false;
-            return true;
+            anticogging_index_--;
+            if (anticogging_index_ >= 0) {
+                set_pos_setpoint(anticogging_index_ * (static_cast<float>(axis_->encoder_.config_.cpr) / config_.anticogging.cogging_map.size()), 0.0f, 0.0f);
+                return false;
+            } else {
+                    anticogging_index_ = 0;
+                    set_pos_setpoint(0.0f, 0.0f, 0.0f);  // Send the motor home
+                    use_anticogging_ = true;             // We're good to go, enable anti-cogging
+                    calib_anticogging_ = false;
+                    return true;
+            }
         }
     }
     return false;
