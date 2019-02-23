@@ -82,13 +82,12 @@ bool Controller::anticogging_calibration(float pos_estimate, float vel_estimate)
             std::abs(vel_estimate) <= config_.anticogging.calib_vel_threshold) {
             
             if(anticogging_direction_)
-                config_.anticogging.cogging_map[anticogging_index_] = vel_integrator_current_ / 2.0f;
+                config_.anticogging.cogging_map[anticogging_index_++] = vel_integrator_current_ / 2.0f;
             else
-                config_.anticogging.cogging_map[anticogging_index_] += vel_integrator_current_ / 2.0f;
+                config_.anticogging.cogging_map[anticogging_index_--] += vel_integrator_current_ / 2.0f;
         }
 
         if (anticogging_direction_) {
-            anticogging_index_++;
             if (anticogging_index_ < static_cast<int>(config_.anticogging.cogging_map.size())) {
                 set_pos_setpoint(anticogging_index_ * (static_cast<float>(axis_->encoder_.config_.cpr) / config_.anticogging.cogging_map.size()), 0.0f, 0.0f);
                 return false;
@@ -96,7 +95,6 @@ bool Controller::anticogging_calibration(float pos_estimate, float vel_estimate)
                 anticogging_direction_ = false;
             }
         } else {
-            anticogging_index_--;
             if (anticogging_index_ >= 0) {
                 set_pos_setpoint(anticogging_index_ * (static_cast<float>(axis_->encoder_.config_.cpr) / config_.anticogging.cogging_map.size()), 0.0f, 0.0f);
                 return false;
