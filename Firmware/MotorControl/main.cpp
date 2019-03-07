@@ -9,12 +9,15 @@
 #include <communication/interface_i2c.h>
 
 BoardConfig_t board_config;
+struct Configs{
 Encoder::Config_t encoder_configs[AXIS_COUNT];
 SensorlessEstimator::Config_t sensorless_configs[AXIS_COUNT];
 Controller::Config_t controller_configs[AXIS_COUNT];
 Motor::Config_t motor_configs[AXIS_COUNT];
 Axis::Config_t axis_configs[AXIS_COUNT];
 TrapezoidalTrajectory::Config_t trap_configs[AXIS_COUNT];
+};
+Configs *configs;
 bool user_config_loaded_;
 
 SystemStats_t system_stats_ = { 0 };
@@ -33,12 +36,12 @@ typedef Config<
 void save_configuration(void) {
     if (ConfigFormat::safe_store_config(
             &board_config,
-            &encoder_configs,
-            &sensorless_configs,
-            &controller_configs,
-            &motor_configs,
-            &trap_configs,
-            &axis_configs)) {
+            &configs->encoder_configs,
+            &configs->sensorless_configs,
+            &configs->controller_configs,
+            &configs->motor_configs,
+            &configs->trap_configs,
+            &configs->axis_configs)) {
         //printf("saving configuration failed\r\n"); osDelay(5);
     } else {
         user_config_loaded_ = true;
@@ -50,23 +53,18 @@ void load_configuration(void) {
     if (NVM_init() ||
         ConfigFormat::safe_load_config(
                 &board_config,
-                &encoder_configs,
-                &sensorless_configs,
-                &controller_configs,
-                &motor_configs,
-                &trap_configs,
-                &axis_configs)) {
+                &configs->encoder_configs,
+                &configs->sensorless_configs,
+                &configs->controller_configs,
+                &configs->motor_configs,
+                &configs->trap_configs,
+                &configs->axis_configs)) {
         //If loading failed, restore defaults
         board_config = BoardConfig_t();
+        delete configs;
+        configs = new Configs();
         for (size_t i = 0; i < AXIS_COUNT; ++i) {
-            encoder_configs[i] = Encoder::Config_t();
-            sensorless_configs[i] = SensorlessEstimator::Config_t();
-            controller_configs[i] = Controller::Config_t();
-            motor_configs[i] = Motor::Config_t();
-            trap_configs[i] = TrapezoidalTrajectory::Config_t();
-            axis_configs[i] = Axis::Config_t();
-            // Default step/dir pins are different, so we need to explicitly load them
-            Axis::load_default_step_dir_pin_config(hw_configs[i].axis_config, &axis_configs[i]);
+            Axis::load_default_step_dir_pin_config(hw_configs[i].axis_config, &configs->axis_configs[i]);
         }
     } else {
         user_config_loaded_ = true;
@@ -117,6 +115,7 @@ void vApplicationIdleHook(void) {
 
 int odrive_main(void) {
     // Load persistent configuration (or defaults)
+    configs = new Configs();
     load_configuration();
 
 #if HW_VERSION_MAJOR == 3 && HW_VERSION_MINOR >= 3
@@ -163,14 +162,14 @@ int odrive_main(void) {
     // Construct all objects.
     for (size_t i = 0; i < AXIS_COUNT; ++i) {
         Encoder *encoder = new Encoder(hw_configs[i].encoder_config,
-                                       encoder_configs[i]);
-        SensorlessEstimator *sensorless_estimator = new SensorlessEstimator(sensorless_configs[i]);
-        Controller *controller = new Controller(controller_configs[i]);
+                                       configs->encoder_configs[i]);
+        SensorlessEstimator *sensorless_estimator = new SensorlessEstimator(configs->sensorless_configs[i]);
+        Controller *controller = new Controller(configs->controller_configs[i]);
         Motor *motor = new Motor(hw_configs[i].motor_config,
                                  hw_configs[i].gate_driver_config,
-                                 motor_configs[i]);
-        TrapezoidalTrajectory *trap = new TrapezoidalTrajectory(trap_configs[i]);
-        axes[i] = new Axis(hw_configs[i].axis_config, axis_configs[i],
+                                 configs->motor_configs[i]);
+        TrapezoidalTrajectory *trap = new TrapezoidalTrajectory(configs->trap_configs[i]);
+        axes[i] = new Axis(hw_configs[i].axis_config, configs->axis_configs[i],
                 *encoder, *sensorless_estimator, *controller, *motor, *trap);
     }
     
