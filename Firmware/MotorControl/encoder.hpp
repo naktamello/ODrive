@@ -92,7 +92,7 @@ public:
     auto make_protocol_definitions() {
         return make_protocol_member_list(
             make_protocol_property("error", &error_),
-            make_protocol_ro_property("is_ready", &is_ready_),
+            make_protocol_property("is_ready", &is_ready_),
             make_protocol_ro_property("index_found", const_cast<bool*>(&index_found_)),
             make_protocol_property("shadow_count", &shadow_count_),
             make_protocol_property("count_in_cpr", &count_in_cpr_),

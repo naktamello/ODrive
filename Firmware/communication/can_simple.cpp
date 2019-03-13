@@ -107,6 +107,10 @@ void CANSimple::handle_can_message(CAN_message_t& msg) {
             case MSG_GET_VBUS_VOLTAGE:
                 get_vbus_voltage_callback(axis, msg);
                 break;
+            case MSG_GET_ENCODER_OFFSET:
+                get_encoder_offset_callback(axis, msg);
+            case MSG_SET_ENCODER_OFFSET:
+                set_encoder_offset_callback(axis, msg);
             default:
                 break;
         }
@@ -342,6 +346,32 @@ void CANSimple::get_vbus_voltage_callback(Axis* axis, CAN_message_t& msg) {
     txmsg.buf[5] = 0;
     txmsg.buf[6] = 0;
     txmsg.buf[7] = 0;
+}
+
+
+void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
+    CAN_message_t txmsg;
+
+    txmsg.id = axis->config_.can_node_id << NUM_CMD_ID_BITS;
+    txmsg.id += MSG_GET_ENCODER_OFFSET;
+    txmsg.isExt = false;
+    txmsg.len = 8;
+
+    txmsg.buf[0] = axis->encoder_.config_.offset;
+    txmsg.buf[1] = axis->encoder_.config_.offset >> 8;
+    txmsg.buf[2] = axis->encoder_.config_.offset >> 16;
+    txmsg.buf[3] = axis->encoder_.config_.offset >> 24;
+    uint32_t is_ready = axis->encoder_.is_ready_ ? 1: 0;
+    txmsg.buf[4] = is_ready;
+    txmsg.buf[5] = is_ready >> 8;
+    txmsg.buf[6] = is_ready >> 16;
+    txmsg.buf[7] = is_ready >> 24;
+    odCAN->write(txmsg);
+}
+
+void CANSimple::set_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
+    axis->encoder_.config_.offset = get_32bit_val(msg, 0);
+    axis->encoder_.is_ready_ = true;
 }
 
 void CANSimple::send_heartbeat(Axis* axis) {

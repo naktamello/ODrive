@@ -143,7 +143,7 @@ bool Axis::do_updates() {
     encoder_.update();
     sensorless_estimator_.update();
     bool ret = check_for_errors();
-    odCAN->send_heartbeat(this);
+//    odCAN->send_heartbeat(this);
     return ret;
 }
 
