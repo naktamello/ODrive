@@ -109,8 +109,10 @@ void CANSimple::handle_can_message(CAN_message_t& msg) {
                 break;
             case MSG_GET_ENCODER_OFFSET:
                 get_encoder_offset_callback(axis, msg);
+                break;
             case MSG_SET_ENCODER_OFFSET:
                 set_encoder_offset_callback(axis, msg);
+                break;
             default:
                 break;
         }
