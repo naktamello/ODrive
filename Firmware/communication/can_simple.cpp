@@ -107,6 +107,9 @@ void CANSimple::handle_can_message(CAN_message_t& msg) {
             case MSG_GET_VBUS_VOLTAGE:
                 get_vbus_voltage_callback(axis, msg);
                 break;
+            case MSG_GET_ODRIVE_HEARTBEAT:
+                send_heartbeat(axis);
+                break;
             case MSG_GET_ENCODER_OFFSET:
                 get_encoder_offset_callback(axis, msg);
                 break;
