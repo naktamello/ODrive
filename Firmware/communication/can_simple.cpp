@@ -400,7 +400,12 @@ void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
 }
 
 void CANSimple::set_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
-    axis->encoder_.config_.offset = get_32bit_val(msg, 0);
+    int32_t offset = get_32bit_val(msg, 0);
+    axis->encoder_.set_circular_count(0, false);
+    axis->encoder_.set_linear_count(0);
+    axis->encoder_.pos_cpr_ = 0;
+    axis->controller_.pos_setpoint_ = 0;
+    axis->encoder_.config_.offset = offset;
     axis->encoder_.is_ready_ = true;
 }
 
