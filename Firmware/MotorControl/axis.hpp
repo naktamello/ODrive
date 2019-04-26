@@ -89,7 +89,8 @@ public:
             SensorlessEstimator& sensorless_estimator,
             Controller& controller,
             Motor& motor,
-            TrapezoidalTrajectory& trap);
+            TrapezoidalTrajectory& trap,
+            CubicTrajectory& cubic);
 
     void setup();
     void start_thread();
@@ -195,6 +196,7 @@ public:
     Controller& controller_;
     Motor& motor_;
     TrapezoidalTrajectory& trap_;
+    CubicTrajectory& cubic_;
 
     osThreadId thread_id_;
     volatile bool thread_id_valid_ = false;
@@ -262,6 +264,7 @@ public:
             make_protocol_object("encoder", encoder_.make_protocol_definitions()),
             make_protocol_object("sensorless_estimator", sensorless_estimator_.make_protocol_definitions()),
             make_protocol_object("trap_traj", trap_.make_protocol_definitions()),
+            make_protocol_object("cubic_traj", cubic_.make_protocol_definitions()),
             make_protocol_function("watchdog_feed", *this, &Axis::watchdog_feed)
         );
     }

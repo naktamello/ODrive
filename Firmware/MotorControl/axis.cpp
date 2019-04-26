@@ -13,19 +13,22 @@ Axis::Axis(const AxisHardwareConfig_t& hw_config,
            SensorlessEstimator& sensorless_estimator,
            Controller& controller,
            Motor& motor,
-           TrapezoidalTrajectory& trap) :
+           TrapezoidalTrajectory& trap,
+           CubicTrajectory& cubic) :
       hw_config_(hw_config),
       config_(config),
       encoder_(encoder),
       sensorless_estimator_(sensorless_estimator),
       controller_(controller),
       motor_(motor),
-      trap_(trap) {
+      trap_(trap),
+      cubic_(cubic){
     encoder_.axis_ = this;
     sensorless_estimator_.axis_ = this;
     controller_.axis_ = this;
     motor_.axis_ = this;
     trap_.axis_ = this;
+    cubic_.axis_ = this;
 
     decode_step_dir_pins();
     update_watchdog_settings();
