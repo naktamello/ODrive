@@ -6,6 +6,7 @@
 
 static const uint8_t NUM_NODE_ID_BITS = 6;
 static constexpr uint8_t NUM_CMD_ID_BITS = 11 - NUM_NODE_ID_BITS;
+static const uint8_t NUM_CAN_EXT_ID_BITS = 18;
 
 void CANSimple::handle_can_message(CAN_message_t& msg) {
     // This functional way of handling the messages is neat and is much cleaner from
@@ -379,7 +380,6 @@ void CANSimple::get_vbus_voltage_callback(Axis* axis, CAN_message_t& msg) {
     }
 }
 
-
 void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
     CAN_message_t txmsg;
 
@@ -392,7 +392,7 @@ void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
     txmsg.buf[1] = axis->encoder_.config_.offset >> 8;
     txmsg.buf[2] = axis->encoder_.config_.offset >> 16;
     txmsg.buf[3] = axis->encoder_.config_.offset >> 24;
-    uint32_t is_ready = axis->encoder_.is_ready_ ? 1: 0;
+    uint32_t is_ready = axis->encoder_.is_ready_ ? 1 : 0;
     txmsg.buf[4] = is_ready;
     txmsg.buf[5] = is_ready >> 8;
     txmsg.buf[6] = is_ready >> 16;
@@ -432,10 +432,16 @@ void CANSimple::send_heartbeat(Axis* axis) {
 }
 
 uint8_t CANSimple::get_node_id(uint32_t msgID) {
+    if (msgID > 0x7ff) {
+        return ((msgID >> (NUM_CAN_EXT_ID_BITS + NUM_CMD_ID_BITS)) & 0x03F);
+    }
     return ((msgID >> NUM_CMD_ID_BITS) & 0x03F);  // Upper 6 bits
 }
 
 uint8_t CANSimple::get_cmd_id(uint32_t msgID) {
+    if (msgID > 0x7ff) {
+        return ((msgID >> NUM_CAN_EXT_ID_BITS) & 0x03F);
+    }
     return (msgID & 0x01F);  // Bottom 5 bits
 }
 
