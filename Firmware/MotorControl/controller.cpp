@@ -74,6 +74,15 @@ void Controller::start_anticogging_calibration() {
     }
 }
 
+void Controller::execute_trajectory() {
+    if (axis_->cubic_.queue_cnt_ > 1) {  // at least 2 points needed
+        // todo check starting position first
+        axis_->cubic_.setup();
+        traj_start_loop_count_ = axis_->loop_counter_;
+        config_.control_mode = CTRL_MODE_WAYPOINT_CONTROL;
+    }
+}
+
 /*
  * This anti-cogging implementation iterates through each encoder position,
  * waits for zero velocity & position error,
@@ -106,6 +115,31 @@ bool Controller::update(float pos_estimate, float vel_estimate, float* current_s
     // Only runs if anticogging_.calib_anticogging is true; non-blocking
     anticogging_calibration(pos_estimate, vel_estimate);
     float anticogging_pos = pos_estimate;
+
+    GPIO_InitTypeDef GPIO_InitStruct;
+    GPIO_InitStruct.Pin = GPIO_PIN_3;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    printf("update\n");
+
+    // Waypoint control
+    if (config_.control_mode == CTRL_MODE_WAYPOINT_CONTROL) {
+        float t = (axis_->loop_counter_ - traj_start_loop_count_) * current_meas_period;
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
+        TrapezoidalTrajectory::Step_t traj_step = axis_->cubic_.eval(t);
+        HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
+        pos_setpoint_ = traj_step.Y;
+        vel_setpoint_ = traj_step.Yd;
+        anticogging_pos = pos_setpoint_;
+        if (axis_->cubic_.done_){
+            vel_setpoint_ = 0;
+            current_setpoint_ = 0;
+            config_.control_mode = CTRL_MODE_POSITION_CONTROL;
+        }
+
+    }
 
     // Trajectory control
     if (config_.control_mode == CTRL_MODE_TRAJECTORY_CONTROL) {

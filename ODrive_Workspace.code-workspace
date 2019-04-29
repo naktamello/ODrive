@@ -53,7 +53,8 @@
 			"chrono": "cpp",
 			"condition_variable": "cpp",
 			"future": "cpp",
-			"arm_math.h": "c"
+			"arm_math.h": "c",
+			"cmath": "cpp"
 		}
 	}
 }

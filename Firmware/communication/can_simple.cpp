@@ -116,6 +116,12 @@ void CANSimple::handle_can_message(CAN_message_t& msg) {
             case MSG_GET_VBUS_VOLTAGE:
                 get_vbus_voltage_callback(axis, msg);
                 break;
+            case MSG_ADD_TRAJ_PT:
+                add_traj_pt_callback(axis, msg);
+                break;
+            case MSG_EXECUTE_TRAJ:
+                execute_traj_callback(axis, msg);
+                break;
             case MSG_GET_ODRIVE_HEARTBEAT:
                 send_heartbeat(axis);
                 break;
@@ -379,6 +385,17 @@ void CANSimple::get_vbus_voltage_callback(Axis* axis, CAN_message_t& msg) {
         odCAN->write(txmsg);
     }
 }
+
+
+void CANSimple::add_traj_pt_callback(Axis* axis, CAN_message_t& msg) {
+    CubicTrajectory::Waypoint_t pt = axis->cubic_.deserialize_CAN_msg(msg.id, msg.buf);
+    bool result = axis->cubic_.enqueue(pt);  // TODO return a response
+}
+
+void CANSimple::execute_traj_callback(Axis* axis, CAN_message_t& msg) {
+    axis->controller_.execute_trajectory();
+}
+
 
 void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
     CAN_message_t txmsg;

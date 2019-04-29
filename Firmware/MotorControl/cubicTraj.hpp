@@ -9,16 +9,19 @@ class CubicTrajectory {
     };
 
     struct Waypoint_t {
-        int traj_id;
+        uint8_t traj_id;
         float t_from_start;
-        float accel;
-        float pos;
+        int32_t accel;
+        int32_t pos;
     };
 
     explicit CubicTrajectory(Config_t& config);
-
-    bool enqueue(int traj_id, float t_from_start, float accel, float pos);
-    bool dequeue(CubicTrajectory::Waypoint_t& pt);
+    void setup();
+    bool load_next();
+    TrapezoidalTrajectory::Step_t eval(float t);
+    bool enqueue(CubicTrajectory::Waypoint_t pt);
+    bool dequeue(CubicTrajectory::Waypoint_t* p_pt);
+    Waypoint_t deserialize_CAN_msg(uint32_t can_id, uint8_t* payload);
 
     auto make_protocol_definitions() {
         return make_protocol_member_list(
@@ -32,11 +35,15 @@ class CubicTrajectory {
 
     Axis* axis_ = nullptr;  // set by Axis constructor
     Config_t& config_;
+    Waypoint_t running_[2];
+    bool done_ = false;
+    uint8_t traj_head_ = 0;
+    uint8_t traj_tail_ = 1;
     Waypoint_t queue_[20];
-    int queue_cnt_ = 0;
-    int queue_size_ = 20;
-    int queue_head_ = 0;
-    int queue_tail_ = 0;
+    uint8_t queue_cnt_ = 0;
+    uint8_t queue_size_ = 20;
+    uint8_t queue_head_ = 0;
+    uint8_t queue_tail_ = 0;
 };
 
 #endif
