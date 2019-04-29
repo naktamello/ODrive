@@ -121,12 +121,12 @@ bool Controller::update(float pos_estimate, float vel_estimate, float* current_s
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    printf("update\n");
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
 
     // Waypoint control
     if (config_.control_mode == CTRL_MODE_WAYPOINT_CONTROL) {
         float t = (axis_->loop_counter_ - traj_start_loop_count_) * current_meas_period;
-        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_SET);
         TrapezoidalTrajectory::Step_t traj_step = axis_->cubic_.eval(t);
         HAL_GPIO_WritePin(GPIOA, GPIO_PIN_3, GPIO_PIN_RESET);
