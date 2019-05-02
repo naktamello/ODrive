@@ -123,7 +123,6 @@ bool Controller::update(float pos_estimate, float vel_estimate, float* current_s
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-
     // Waypoint control
     if (config_.control_mode == CTRL_MODE_WAYPOINT_CONTROL) {
         float t = (axis_->loop_counter_ - traj_start_loop_count_) * current_meas_period;
@@ -138,7 +137,6 @@ bool Controller::update(float pos_estimate, float vel_estimate, float* current_s
             current_setpoint_ = 0;
             config_.control_mode = CTRL_MODE_POSITION_CONTROL;
         }
-
     }
 
     // Trajectory control

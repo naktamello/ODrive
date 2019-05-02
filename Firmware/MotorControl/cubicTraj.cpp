@@ -59,7 +59,7 @@ TrapezoidalTrajectory::Step_t CubicTrajectory::eval(float t) {
     // float x1 = pow((tf - t),3)*ai/(6*h) + pow((t-ti),3)*af/(6*h)+(xi/h-ai*h/6)*(ti-t)+(xf/h-af*h/6)*(t-ti);
     // float dx1 = -pow((tf - t),2)*ai/(2*h) + pow((t-ti),2)/(2*h) + (xf-xi)/h - (af-ai)*h/6;
     trajStep.Y = tf_t_pow3*ai/(6*h) + t_ti_pow3*af/(6*h)+(xi/h-ai*h/6)*(tf-t)+(xf/h-af*h/6)*(t-ti);
-    trajStep.Yd = -tf_t_pow2*ai/(2*h) + t_ti_pow2/(2*h) + (xf-xi)/h - (af-ai)*h/6;
+    trajStep.Yd = -tf_t_pow2*ai/(2*h) + t_ti_pow2*af/(2*h) + (xf-xi)/h - (af-ai)*h/6;
     // trajStep.Y = 0;
     // trajStep.Yd = 0;
     return trajStep;
