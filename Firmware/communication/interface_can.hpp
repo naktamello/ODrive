@@ -48,13 +48,13 @@ class ODriveCAN {
     // Thread Relevant Data
     osThreadId thread_id_;
     Error_t error_ = ERROR_NONE;
-
+    uint8_t node_id[AXIS_COUNT];
     volatile bool thread_id_valid_ = false;
     bool start_can_server();
     void can_server_thread();
     void send_heartbeat(Axis *axis);
     void reinit_can();
-
+    void set_node_id(uint8_t axis_number, Axis *axis);
     void set_error(Error_t error);
 
     // I/O Functions
