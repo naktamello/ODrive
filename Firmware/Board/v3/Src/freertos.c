@@ -87,8 +87,6 @@ osSemaphoreId sem_usb_rx;
 osSemaphoreId sem_usb_tx;
 osSemaphoreId sem_can;
 
-QueueHandle_t queue_can;
-
 osThreadId usb_irq_thread;
 
 // Place FreeRTOS heap in core coupled memory for better performance
