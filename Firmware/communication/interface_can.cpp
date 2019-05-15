@@ -62,17 +62,20 @@ bool ODriveCAN::start_can_server() {
     status = HAL_CAN_Init(handle_);
 
     CAN_FilterTypeDef filter;
-    filter.FilterActivation = ENABLE;
-    filter.FilterBank = 0;
-    filter.FilterFIFOAssignment = CAN_RX_FIFO0;
-    filter.FilterIdHigh = 0x0000;
-    filter.FilterIdLow = 0x0000;
-    filter.FilterMaskIdHigh = 0x0000;
-    filter.FilterMaskIdLow = 0x0000;
-    filter.FilterMode = CAN_FILTERMODE_IDMASK;
-    filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    for (uint8_t i = 0; i < AXIS_COUNT; ++i) {
+        filter.FilterActivation = ENABLE;
+        filter.FilterFIFOAssignment = CAN_RX_FIFO0;
+        filter.FilterMode = CAN_FILTERMODE_IDMASK;
+        filter.FilterScale = CAN_FILTERSCALE_32BIT;
+        // refer to ST's RM0090 Rev18 p.1088 for mask positions
+        filter.FilterBank = i;
+        filter.FilterIdHigh = node_id[i] << 10;  // shift by STD id position(5) + CMD_ID bits(5)
+        filter.FilterIdLow = 0x0000;
+        filter.FilterMaskIdHigh = 0xFC00;  // mask upper 6 bits (NODE_ID bits)
+        filter.FilterMaskIdLow = 0x0000;  // accept STD, EXT, Data, Remote
 
-    status = HAL_CAN_ConfigFilter(handle_, &filter);
+        status = HAL_CAN_ConfigFilter(handle_, &filter);
+    }
 
     status = HAL_CAN_Start(handle_);
     if (status == HAL_OK)
@@ -170,6 +173,10 @@ void ODriveCAN::reinit_can() {
     auto status = HAL_CAN_Start(handle_);
     if (status == HAL_OK)
         status = HAL_CAN_ActivateNotification(handle_, CAN_IT_RX_FIFO0_MSG_PENDING);
+}
+
+void ODriveCAN::set_node_id(uint8_t axis_number, Axis *axis) {
+    node_id[axis_number] = axis->config_.can_node_id;
 }
 
 void ODriveCAN::set_error(Error_t error) {
