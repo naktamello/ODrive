@@ -186,7 +186,7 @@ int odrive_main(void) {
         TrapezoidalTrajectory *trap = new TrapezoidalTrajectory(trap_configs[i]);
         CubicTrajectory *cubic = new CubicTrajectory(cubic_configs[i]);
         axes[i] = new Axis(hw_configs[i].axis_config, axis_configs[i],
-                *encoder, *sensorless_estimator, *controller, *motor, *trap);
+                *encoder, *sensorless_estimator, *controller, *motor, *trap, *cubic);
         odCAN->set_node_id(i, axes[i]);
     }
     

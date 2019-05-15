@@ -396,6 +396,10 @@ void CANSimple::execute_traj_callback(Axis* axis, CAN_message_t& msg) {
     axis->controller_.execute_trajectory();
 }
 
+void CANSimple::send_traj_state(Axis* axis) {
+    // current traj id
+    // buffer state
+}
 
 void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
     CAN_message_t txmsg;

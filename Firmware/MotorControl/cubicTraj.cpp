@@ -36,15 +36,14 @@ TrapezoidalTrajectory::Step_t CubicTrajectory::eval(float t) {
         if (!result){
             done_ = true;
             trajStep.Y = running_[traj_tail_].pos;;
-            // trajStep.Yd = 0;
             return trajStep;
+        }
+        else{
+            // queue message for CAN server
         }
     }
     float ti = running_[traj_head_].t_from_start;
-    // int ti_int = (int) (ti*1000);
     float tf = running_[traj_tail_].t_from_start;
-    // int tf_int = (int) (tf*1000);
-    // int t_int = (int) (t*1000);
     float tf_t = tf - t;
     float t_ti = t - ti;
     float tf_t_pow2 = tf_t * tf_t;
@@ -56,12 +55,8 @@ TrapezoidalTrajectory::Step_t CubicTrajectory::eval(float t) {
     float xi = running_[traj_head_].pos;
     float xf = running_[traj_tail_].pos;
     float h = tf - ti;
-    // float x1 = pow((tf - t),3)*ai/(6*h) + pow((t-ti),3)*af/(6*h)+(xi/h-ai*h/6)*(ti-t)+(xf/h-af*h/6)*(t-ti);
-    // float dx1 = -pow((tf - t),2)*ai/(2*h) + pow((t-ti),2)/(2*h) + (xf-xi)/h - (af-ai)*h/6;
     trajStep.Y = tf_t_pow3*ai/(6*h) + t_ti_pow3*af/(6*h)+(xi/h-ai*h/6)*(tf-t)+(xf/h-af*h/6)*(t-ti);
     trajStep.Yd = -tf_t_pow2*ai/(2*h) + t_ti_pow2*af/(2*h) + (xf-xi)/h - (af-ai)*h/6;
-    // trajStep.Y = 0;
-    // trajStep.Yd = 0;
     return trajStep;
 }
 #pragma GCC pop_options

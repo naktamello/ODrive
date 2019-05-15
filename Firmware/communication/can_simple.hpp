@@ -40,6 +40,7 @@ class CANSimple {
 
     static void handle_can_message(CAN_message_t& msg);
     static void send_heartbeat(Axis* axis);
+    static void send_traj_state(Axis* axis);
 
    private:
     static void nmt_callback(Axis* axis, CAN_message_t& msg);
