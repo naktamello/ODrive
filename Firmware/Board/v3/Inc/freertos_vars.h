@@ -8,7 +8,6 @@ extern osSemaphoreId sem_uart_dma;
 extern osSemaphoreId sem_usb_rx;
 extern osSemaphoreId sem_usb_tx;
 extern osSemaphoreId sem_can;
-extern QueueHandle_t queue_can;
 
 extern osThreadId defaultTaskHandle;
 extern osThreadId usb_irq_thread;

@@ -78,8 +78,11 @@ void Controller::execute_trajectory() {
     if (axis_->cubic_.queue_cnt_ > 1) {  // at least 2 points needed
         // todo check starting position first
         axis_->cubic_.setup();
-        traj_start_loop_count_ = axis_->loop_counter_;
-        config_.control_mode = CTRL_MODE_WAYPOINT_CONTROL;
+        bool start_pos_valid = abs(axis_->encoder_.shadow_count_ - axis_->cubic_.running_[axis_->cubic_.traj_head_].pos) < 200;
+        if (start_pos_valid){
+            traj_start_loop_count_ = axis_->loop_counter_;
+            config_.control_mode = CTRL_MODE_WAYPOINT_CONTROL;
+        }
     }
 }
 

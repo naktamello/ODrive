@@ -31,6 +31,7 @@ class CANSimple {
         MSG_GET_SENSORLESS_ESTIMATES,
         MSG_RESET_ODRIVE,
         MSG_GET_VBUS_VOLTAGE,
+        MSG_GET_TRAJ_STATE = 0x01A,
         MSG_ADD_TRAJ_PT = 0x01B,
         MSG_EXECUTE_TRAJ = 0x01C,
         MSG_GET_ODRIVE_HEARTBEAT = 0x01D,
@@ -40,7 +41,6 @@ class CANSimple {
 
     static void handle_can_message(CAN_message_t& msg);
     static void send_heartbeat(Axis* axis);
-    static void send_traj_state(Axis* axis);
 
    private:
     static void nmt_callback(Axis* axis, CAN_message_t& msg);
@@ -67,6 +67,7 @@ class CANSimple {
     static void get_sensorless_estimates_callback(Axis* axis, CAN_message_t& msg);
     static void get_vbus_voltage_callback(Axis* axis, CAN_message_t& msg);
     static void add_traj_pt_callback(Axis* axis, CAN_message_t& msg);
+    static void get_traj_state_callback(Axis* axis, CAN_message_t& msg);
     static void execute_traj_callback(Axis* axis, CAN_message_t& msg);
     static void get_encoder_offset_callback(Axis* axis, CAN_message_t& msg);
     static void set_encoder_offset_callback(Axis* axis, CAN_message_t& msg);

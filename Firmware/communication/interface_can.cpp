@@ -77,6 +77,14 @@ bool ODriveCAN::start_can_server() {
         status = HAL_CAN_ConfigFilter(handle_, &filter);
     }
 
+    filter.FilterBank = 13;
+    filter.FilterIdHigh = 0x7ff << 5;  // shift by STD id position(5) + CMD_ID bits(5)
+    filter.FilterIdLow = 0x0000;
+    filter.FilterMaskIdHigh = 0xFFE0;  // mask upper 6 bits (NODE_ID bits)
+    filter.FilterMaskIdLow = 0x0000;  // accept STD, EXT, Data, Remote
+
+    status = HAL_CAN_ConfigFilter(handle_, &filter);
+
     status = HAL_CAN_Start(handle_);
     if (status == HAL_OK)
         status = HAL_CAN_ActivateNotification(handle_, CAN_IT_RX_FIFO0_MSG_PENDING);

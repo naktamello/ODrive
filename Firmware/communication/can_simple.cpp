@@ -116,6 +116,9 @@ void CANSimple::handle_can_message(CAN_message_t& msg) {
             case MSG_GET_VBUS_VOLTAGE:
                 get_vbus_voltage_callback(axis, msg);
                 break;
+            case MSG_GET_TRAJ_STATE:
+                get_traj_state_callback(axis, msg);
+                break;
             case MSG_ADD_TRAJ_PT:
                 add_traj_pt_callback(axis, msg);
                 break;
@@ -134,6 +137,9 @@ void CANSimple::handle_can_message(CAN_message_t& msg) {
             default:
                 break;
         }
+    } else if (msg.id == 0x7ff) {
+        execute_traj_callback(axes[0], msg);
+        execute_traj_callback(axes[1], msg);
     }
 }
 
@@ -396,9 +402,21 @@ void CANSimple::execute_traj_callback(Axis* axis, CAN_message_t& msg) {
     axis->controller_.execute_trajectory();
 }
 
-void CANSimple::send_traj_state(Axis* axis) {
-    // current traj id
-    // buffer state
+void CANSimple::get_traj_state_callback(Axis* axis, CAN_message_t& msg) {
+    CAN_message_t txmsg;
+
+    txmsg.id = axis->config_.can_node_id << NUM_CMD_ID_BITS;
+    txmsg.id += MSG_GET_TRAJ_STATE;
+    txmsg.isExt = false;
+    txmsg.len = 8;
+    txmsg.buf[0] = axis->cubic_.queue_cnt_;
+    txmsg.buf[1] = axis->cubic_.queue_cnt_ >> 8;
+    txmsg.buf[2] = axis->cubic_.queue_cnt_ >> 16;
+    txmsg.buf[3] = axis->cubic_.queue_cnt_ >> 24;
+    txmsg.buf[4] = axis->encoder_.shadow_count_;
+    txmsg.buf[5] = axis->encoder_.shadow_count_ >> 8;
+    txmsg.buf[6] = axis->encoder_.shadow_count_ >> 16;
+    txmsg.buf[7] = axis->encoder_.shadow_count_ >> 24;
 }
 
 void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
