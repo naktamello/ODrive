@@ -479,7 +479,7 @@ uint8_t CANSimple::get_node_id(uint32_t msgID) {
 
 uint8_t CANSimple::get_cmd_id(uint32_t msgID) {
     if (msgID > 0x7ff) {
-        return ((msgID >> NUM_CAN_EXT_ID_BITS) & 0x03F);
+        return ((msgID >> NUM_CAN_EXT_ID_BITS) & 0x01F);
     }
     return (msgID & 0x01F);  // Bottom 5 bits
 }
