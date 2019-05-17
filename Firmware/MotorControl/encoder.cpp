@@ -29,6 +29,18 @@ void Encoder::set_error(Error_t error) {
 }
 
 bool Encoder::do_checks(){
+    if (config_.min_pos_ != 0){
+        if (shadow_count_ < config_.min_pos_){
+            set_error(ERROR_SOFTWARE_ENDSTOP);
+            return false;
+        }
+    }
+    if (config_.max_pos_ != 0){
+            if (shadow_count_ > config_.max_pos_){
+            set_error(ERROR_SOFTWARE_ENDSTOP);
+            return false;
+        }
+    }
     return error_ == ERROR_NONE;
 }
 

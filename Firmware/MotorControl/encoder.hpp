@@ -15,6 +15,7 @@ public:
         ERROR_UNSUPPORTED_ENCODER_MODE = 0x08,
         ERROR_ILLEGAL_HALL_STATE = 0x10,
         ERROR_INDEX_NOT_FOUND_YET = 0x20,
+        ERROR_SOFTWARE_ENDSTOP = 0x1000,
     };
 
     enum Mode_t {
@@ -43,6 +44,8 @@ public:
         bool find_idx_on_lockin_only = false; // Only be sensitive during lockin scan constant vel state
         bool idx_search_unidirectional = false; // Only allow index search in known direction
         bool ignore_illegal_hall_state = false; // dont error on bad states like 000 or 111
+        int32_t min_pos_ = 0;
+        int32_t max_pos_ = 0;
     };
 
     Encoder(const EncoderHardwareConfig_t& hw_config,
@@ -129,7 +132,9 @@ public:
                 make_protocol_property("calib_scan_distance", &config_.calib_scan_distance),
                 make_protocol_property("calib_scan_omega", &config_.calib_scan_omega),
                 make_protocol_property("idx_search_unidirectional", &config_.idx_search_unidirectional),
-                make_protocol_property("ignore_illegal_hall_state", &config_.ignore_illegal_hall_state)
+                make_protocol_property("ignore_illegal_hall_state", &config_.ignore_illegal_hall_state),
+                make_protocol_property("min_pos", &config_.min_pos_),
+                make_protocol_property("max_pos", &config_.max_pos_)
             ),
             make_protocol_function("set_linear_count", *this, &Encoder::set_linear_count, "count")
         );
