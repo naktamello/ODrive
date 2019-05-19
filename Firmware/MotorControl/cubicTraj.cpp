@@ -26,20 +26,25 @@ bool CubicTrajectory::load_next() {
     }
     return false;
 }
+
+bool CubicTrajectory::has_next(){
+    if (queue_cnt_ < 1)
+        return false;
+    if (done_)
+        return true;
+    return running_[traj_tail_].traj_id == queue_[queue_head_].traj_id;  
+}
+
 #pragma GCC push_options
 #pragma GCC optimize("O0")
 TrapezoidalTrajectory::Step_t CubicTrajectory::eval(float t) {
     TrapezoidalTrajectory::Step_t trajStep;
     trajStep.Ydd = 0;
     if (t > running_[traj_tail_].t_from_start) {
-        bool result = load_next();
-        if (!result){
+        if (!has_next() || !load_next()){
             done_ = true;
             trajStep.Y = running_[traj_tail_].pos;;
             return trajStep;
-        }
-        else{
-            // queue message for CAN server
         }
     }
     float ti = running_[traj_head_].t_from_start;

@@ -21,6 +21,7 @@ class CubicTrajectory {
     TrapezoidalTrajectory::Step_t eval(float t);
     bool enqueue(CubicTrajectory::Waypoint_t pt);
     bool dequeue(CubicTrajectory::Waypoint_t* p_pt);
+    bool has_next();
     Waypoint_t deserialize_CAN_msg(uint32_t can_id, uint8_t* payload);
 
     auto make_protocol_definitions() {
@@ -36,7 +37,7 @@ class CubicTrajectory {
     Axis* axis_ = nullptr;  // set by Axis constructor
     Config_t& config_;
     Waypoint_t running_[2];
-    bool done_ = false;
+    bool done_ = true;
     uint8_t traj_head_ = 0;
     uint8_t traj_tail_ = 1;
     Waypoint_t queue_[20];
