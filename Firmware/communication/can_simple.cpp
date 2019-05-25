@@ -392,10 +392,11 @@ void CANSimple::get_vbus_voltage_callback(Axis* axis, CAN_message_t& msg) {
     }
 }
 
-
 void CANSimple::add_traj_pt_callback(Axis* axis, CAN_message_t& msg) {
     CubicTrajectory::Waypoint_t pt = axis->cubic_.deserialize_CAN_msg(msg.id, msg.buf);
-    bool result = axis->cubic_.enqueue(pt);  // TODO return a response
+    bool result = false;
+    if (axis->cubic_.point_valid(pt))
+        result = axis->cubic_.enqueue(pt);  // TODO return a response
 }
 
 void CANSimple::execute_traj_callback(Axis* axis, CAN_message_t& msg) {

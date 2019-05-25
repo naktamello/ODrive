@@ -19,6 +19,7 @@ class CubicTrajectory {
     void setup();
     bool load_next();
     TrapezoidalTrajectory::Step_t eval(float t);
+    bool point_valid(CubicTrajectory::Waypoint_t pt);
     bool enqueue(CubicTrajectory::Waypoint_t pt);
     bool dequeue(CubicTrajectory::Waypoint_t* p_pt);
     bool has_next();

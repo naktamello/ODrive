@@ -27,12 +27,12 @@ bool CubicTrajectory::load_next() {
     return false;
 }
 
-bool CubicTrajectory::has_next(){
+bool CubicTrajectory::has_next() {
     if (queue_cnt_ < 1)
         return false;
     if (done_)
         return true;
-    return running_[traj_tail_].traj_id == queue_[queue_head_].traj_id;  
+    return running_[traj_tail_].traj_id == queue_[queue_head_].traj_id;
 }
 
 #pragma GCC push_options
@@ -41,9 +41,10 @@ TrapezoidalTrajectory::Step_t CubicTrajectory::eval(float t) {
     TrapezoidalTrajectory::Step_t trajStep;
     trajStep.Ydd = 0;
     if (t > running_[traj_tail_].t_from_start) {
-        if (!has_next() || !load_next()){
+        if (!has_next() || !load_next()) {
             done_ = true;
-            trajStep.Y = running_[traj_tail_].pos;;
+            trajStep.Y = running_[traj_tail_].pos;
+            ;
             return trajStep;
         }
     }
@@ -60,11 +61,20 @@ TrapezoidalTrajectory::Step_t CubicTrajectory::eval(float t) {
     float xi = running_[traj_head_].pos;
     float xf = running_[traj_tail_].pos;
     float h = tf - ti;
-    trajStep.Y = tf_t_pow3*ai/(6*h) + t_ti_pow3*af/(6*h)+(xi/h-ai*h/6)*(tf-t)+(xf/h-af*h/6)*(t-ti);
-    trajStep.Yd = -tf_t_pow2*ai/(2*h) + t_ti_pow2*af/(2*h) + (xf-xi)/h - (af-ai)*h/6;
+    trajStep.Y = tf_t_pow3 * ai / (6 * h) + t_ti_pow3 * af / (6 * h) + (xi / h - ai * h / 6) * (tf - t) + (xf / h - af * h / 6) * (t - ti);
+    trajStep.Yd = -tf_t_pow2 * ai / (2 * h) + t_ti_pow2 * af / (2 * h) + (xf - xi) / h - (af - ai) * h / 6;
     return trajStep;
 }
 #pragma GCC pop_options
+
+bool CubicTrajectory::point_valid(CubicTrajectory::Waypoint_t pt) {
+    if (queue_cnt_) {
+        if (queue_[queue_head_].traj_id != pt.traj_id)
+            return true;
+        return pt.t_from_start > queue_[queue_head_].t_from_start;
+    }
+    return true;
+}
 
 bool CubicTrajectory::enqueue(CubicTrajectory::Waypoint_t pt) {
     if (queue_cnt_ == queue_size_)
@@ -99,12 +109,12 @@ CubicTrajectory::Waypoint_t CubicTrajectory::deserialize_CAN_msg(uint32_t can_id
     pt.pos |= payload[2] << 16;
     pt.pos |= payload[3] << 8;
     pt.pos |= payload[4];
-    if (pt.pos & (1<<31))
-        pt.pos |=0xffff0000;
+    if (pt.pos & (1 << 31))
+        pt.pos |= 0xffff0000;
     pt.accel = payload[5] << 16;
     pt.accel |= payload[6] << 8;
     pt.accel |= payload[7];
-    if (pt.accel & (1<<23))
+    if (pt.accel & (1 << 23))
         pt.accel |= 0xffff0000;
     return pt;
 }
