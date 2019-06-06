@@ -74,12 +74,9 @@ void Controller::start_anticogging_calibration() {
     }
 }
 
-void Controller::execute_trajectory() {
+void Controller::execute_trajectory(uint8_t traj_id) {
     if (axis_->cubic_.queue_cnt_ > 1) {  // at least 2 points needed
-        // todo check starting position first
-        axis_->cubic_.setup();
-        bool start_pos_valid = abs(axis_->encoder_.shadow_count_ - axis_->cubic_.running_[axis_->cubic_.traj_head_].pos) < 200;
-        if (start_pos_valid){
+        if ((abs(axis_->encoder_.shadow_count_ - axis_->cubic_.queue_[axis_->cubic_.queue_head_].pos) < 200) && axis_->cubic_.setup(traj_id)){
             traj_start_loop_count_ = axis_->loop_counter_;
             config_.control_mode = CTRL_MODE_WAYPOINT_CONTROL;
         }

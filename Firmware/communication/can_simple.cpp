@@ -400,7 +400,14 @@ void CANSimple::add_traj_pt_callback(Axis* axis, CAN_message_t& msg) {
 }
 
 void CANSimple::execute_traj_callback(Axis* axis, CAN_message_t& msg) {
-    axis->controller_.execute_trajectory();
+    uint8_t traj_id = msg.buf[0];
+    if (traj_id == 0xff){
+        axis->cubic_.reset();
+    } 
+    else{
+        axis->controller_.execute_trajectory(traj_id);
+    }
+
 }
 
 void CANSimple::get_traj_state_callback(Axis* axis, CAN_message_t& msg) {

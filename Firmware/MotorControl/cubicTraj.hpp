@@ -16,7 +16,8 @@ class CubicTrajectory {
     };
 
     explicit CubicTrajectory(Config_t& config);
-    void setup();
+    void reset();
+    bool setup(uint8_t traj_id);
     bool load_next();
     TrapezoidalTrajectory::Step_t eval(float t);
     bool point_valid(CubicTrajectory::Waypoint_t pt);

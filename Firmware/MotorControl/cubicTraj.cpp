@@ -5,7 +5,18 @@
 CubicTrajectory::CubicTrajectory(Config_t& config) : config_(config) {
 }
 
-void CubicTrajectory::setup() {
+void CubicTrajectory::reset() {
+    done_ = true;
+    traj_head_ = 0;
+    traj_tail_ = 1;
+    queue_cnt_ = 0;
+    queue_head_ = 0;
+    queue_tail_ = 0;
+}
+
+bool CubicTrajectory::setup(uint8_t traj_id) {
+    if ((queue_[queue_head_].traj_id != traj_id) || (queue_[queue_head_].t_from_start > 0))
+        return false;
     CubicTrajectory::Waypoint_t p_pt;
     dequeue(&p_pt);
     running_[0] = p_pt;
@@ -14,6 +25,7 @@ void CubicTrajectory::setup() {
     traj_head_ = 0;
     traj_tail_ = 1;
     done_ = false;
+    return true;
 }
 
 bool CubicTrajectory::load_next() {
@@ -44,7 +56,6 @@ TrapezoidalTrajectory::Step_t CubicTrajectory::eval(float t) {
         if (!has_next() || !load_next()) {
             done_ = true;
             trajStep.Y = running_[traj_tail_].pos;
-            ;
             return trajStep;
         }
     }
@@ -69,9 +80,12 @@ TrapezoidalTrajectory::Step_t CubicTrajectory::eval(float t) {
 
 bool CubicTrajectory::point_valid(CubicTrajectory::Waypoint_t pt) {
     if (queue_cnt_) {
-        if (queue_[queue_head_].traj_id != pt.traj_id)
+        uint8_t last_item = queue_tail_ - 1;
+        if (last_item < 0)
+            last_item = queue_size_ - 1;
+        if (queue_[last_item].traj_id != pt.traj_id)
             return true;
-        return pt.t_from_start > queue_[queue_head_].t_from_start;
+        return pt.t_from_start > queue_[last_item].t_from_start;
     }
     return true;
 }
