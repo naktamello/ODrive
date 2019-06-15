@@ -302,7 +302,7 @@ void CANSimple::move_to_pos_callback(Axis* axis, CAN_message_t& msg) {
 }
 
 void CANSimple::set_pos_setpoint_callback(Axis* axis, CAN_message_t& msg) {
-    axis->controller_.set_pos_setpoint(get_32bit_val(msg, 0), get_16bit_val(msg, 4) * 0.1f, get_16bit_val(msg, 6) * 0.01f);
+    axis->controller_.set_pos_setpoint(get_32bit_val(msg, 0), get_16bit_val(msg, 4), get_16bit_val(msg, 6) * 0.01f);
 }
 
 void CANSimple::set_vel_setpoint_callback(Axis* axis, CAN_message_t& msg) {
