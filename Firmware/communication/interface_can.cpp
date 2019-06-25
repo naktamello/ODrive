@@ -58,7 +58,7 @@ bool ODriveCAN::start_can_server() {
     HAL_StatusTypeDef status;
 
     set_baud_rate(config_.baud);
-
+    handle_->Init.AutoRetransmission = DISABLE;
     status = HAL_CAN_Init(handle_);
 
     CAN_FilterTypeDef filter;
