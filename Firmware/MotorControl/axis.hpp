@@ -100,6 +100,7 @@ public:
     void set_step_dir_active(bool enable);
     void decode_step_dir_pins();
     void update_watchdog_settings();
+    void update_CAN_filter();
 
     static void load_default_step_dir_pin_config(
         const AxisHardwareConfig_t& hw_config, Config_t* config);
@@ -254,7 +255,8 @@ public:
                     make_protocol_property("finish_on_distance", &config_.lockin.finish_on_distance),
                     make_protocol_property("finish_on_enc_idx", &config_.lockin.finish_on_enc_idx)
                 ),
-                make_protocol_property("can_node_id", &config_.can_node_id),
+                make_protocol_property("can_node_id", &config_.can_node_id,
+                    [](void* ctx) { static_cast<Axis*>(ctx)->update_CAN_filter(); }, this),
                 make_protocol_property("can_heartbeat_rate_ms", &config_.can_heartbeat_rate_ms)
             ),
             make_protocol_object("motor", motor_.make_protocol_definitions()),

@@ -6,7 +6,6 @@
 
 static const uint8_t NUM_NODE_ID_BITS = 6;
 static constexpr uint8_t NUM_CMD_ID_BITS = 11 - NUM_NODE_ID_BITS;
-static const uint8_t NUM_CAN_EXT_ID_BITS = 18;
 
 void CANSimple::handle_can_message(CAN_message_t& msg) {
     // This functional way of handling the messages is neat and is much cleaner from
@@ -393,16 +392,10 @@ void CANSimple::send_heartbeat(Axis* axis) {
 }
 
 uint8_t CANSimple::get_node_id(uint32_t msgID) {
-    if (msgID > 0x7ff) {
-        return ((msgID >> (NUM_CAN_EXT_ID_BITS + NUM_CMD_ID_BITS)) & 0x03F);
-    }
     return ((msgID >> NUM_CMD_ID_BITS) & 0x03F);  // Upper 6 bits
 }
 
 uint8_t CANSimple::get_cmd_id(uint32_t msgID) {
-    if (msgID > 0x7ff) {
-        return ((msgID >> NUM_CAN_EXT_ID_BITS) & 0x01F);
-    }
     return (msgID & 0x01F);  // Bottom 5 bits
 }
 

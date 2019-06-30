@@ -131,6 +131,11 @@ void Axis::set_step_dir_active(bool active) {
     }
 }
 
+// @brief update CAN filter using updated can_node_id
+void Axis::update_CAN_filter(){
+    odCAN->setup_filter();
+}
+
 // @brief Do axis level checks and call subcomponent do_checks
 // Returns true if everything is ok.
 bool Axis::do_checks() {

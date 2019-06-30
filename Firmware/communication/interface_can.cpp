@@ -61,21 +61,7 @@ bool ODriveCAN::start_can_server() {
 
     status = HAL_CAN_Init(handle_);
 
-    CAN_FilterTypeDef filter;
-    for (uint8_t i = 0; i < AXIS_COUNT; ++i) {
-        filter.FilterActivation = ENABLE;
-        filter.FilterFIFOAssignment = CAN_RX_FIFO0;
-        filter.FilterMode = CAN_FILTERMODE_IDMASK;
-        filter.FilterScale = CAN_FILTERSCALE_32BIT;
-        // refer to ST's RM0090 Rev18 p.1088 for mask positions
-        filter.FilterBank = i;
-        filter.FilterIdHigh = node_id[i] << 10;  // shift by STD id position(5) + CMD_ID bits(5)
-        filter.FilterIdLow = 0x0000;
-        filter.FilterMaskIdHigh = 0xFC00;  // mask upper 6 bits (NODE_ID bits)
-        filter.FilterMaskIdLow = 0x0000;  // accept STD, EXT, Data, Remote
-
-        status = HAL_CAN_ConfigFilter(handle_, &filter);
-    }
+    ODriveCAN::setup_filter();
 
     status = HAL_CAN_Start(handle_);
     if (status == HAL_OK)
@@ -175,8 +161,28 @@ void ODriveCAN::reinit_can() {
         status = HAL_CAN_ActivateNotification(handle_, CAN_IT_RX_FIFO0_MSG_PENDING);
 }
 
-void ODriveCAN::set_node_id(uint8_t axis_number, Axis *axis) {
-    node_id[axis_number] = axis->config_.can_node_id;
+void ODriveCAN::setup_filter() {
+    CAN_FilterTypeDef filter;
+    filter.FilterActivation = ENABLE;
+    filter.FilterFIFOAssignment = CAN_RX_FIFO0;
+    filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    uint8_t bank = 0;
+    for (uint8_t i = 0; i < AXIS_COUNT; ++i) {
+        // refer to ST's RM0090 Rev18 p.1088 for mask positions
+        filter.FilterBank = bank++;
+        filter.FilterIdHigh = axes[i]->config_.can_node_id << 10;  // shift by STD id position(5) + CMD_ID bits(5)
+        filter.FilterIdLow = 0x0000;
+        filter.FilterMaskIdHigh = 0xFC00;   // mask upper 6 bits (NODE_ID bits) of standard ID
+        filter.FilterMaskIdLow = (1 << 2);  // check IDE bit
+        HAL_CAN_ConfigFilter(handle_, &filter);
+        filter.FilterBank = bank++;
+        filter.FilterIdHigh = 0x0000;
+        filter.FilterIdLow = (axes[i]->config_.can_node_id << 8) | (1 << 2);  // shift by EXT id position(3) + CMD_ID bits(5), set IDE bit
+        filter.FilterMaskIdHigh = 0x0000;
+        filter.FilterMaskIdLow = 0x3F00 | (1 << 2);  // mask bits[10:5] (NODE_ID bits) of extended ID, check IDE bit
+        HAL_CAN_ConfigFilter(handle_, &filter);
+    }
 }
 
 void ODriveCAN::set_error(Error_t error) {
