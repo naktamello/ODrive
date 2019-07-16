@@ -439,20 +439,21 @@ void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
     txmsg.buf[1] = axis->encoder_.config_.offset >> 8;
     txmsg.buf[2] = axis->encoder_.config_.offset >> 16;
     txmsg.buf[3] = axis->encoder_.config_.offset >> 24;
-    uint32_t is_ready = axis->encoder_.is_ready_ ? 1 : 0;
-    txmsg.buf[4] = is_ready;
-    txmsg.buf[5] = is_ready >> 8;
-    txmsg.buf[6] = is_ready >> 16;
-    txmsg.buf[7] = is_ready >> 24;
+    int32_t pos_estimate = (int32_t) axis->encoder_.pos_estimate_;
+    txmsg.buf[4] = pos_estimate;
+    txmsg.buf[5] = pos_estimate >> 8;
+    txmsg.buf[6] = pos_estimate >> 16;
+    txmsg.buf[7] = pos_estimate >> 24;
     odCAN->write(txmsg);
 }
 
 void CANSimple::set_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
     int32_t offset = get_32bit_val(msg, 0);
+    int32_t linear_count = get_32bit_val(msg, 4);
     axis->encoder_.set_circular_count(0, false);
-    axis->encoder_.set_linear_count(0);
+    axis->encoder_.set_linear_count(linear_count);
     axis->encoder_.pos_cpr_ = 0;
-    axis->controller_.pos_setpoint_ = 0;
+    axis->controller_.pos_setpoint_ = linear_count;
     axis->encoder_.config_.offset = offset;
     axis->encoder_.is_ready_ = true;
 }
