@@ -110,6 +110,9 @@ uint32_t ODriveCAN::write(CAN_message_t &txmsg) {
         uint32_t retTxMailbox = 0;
         if (HAL_CAN_GetTxMailboxesFreeLevel(handle_) > 0)
             HAL_CAN_AddTxMessage(handle_, &header, txmsg.buf, &retTxMailbox);
+        else{
+            volatile int i =0;
+        }
 
         return retTxMailbox;
     } else {
