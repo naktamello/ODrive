@@ -391,8 +391,8 @@ void CANSimple::clear_errors_callback(Axis* axis, can_Message_t& msg) {
     axis->clear_errors();
 }
 
-void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
-    CAN_message_t txmsg;
+void CANSimple::get_encoder_offset_callback(Axis* axis, can_Message_t& msg) {
+    can_Message_t txmsg;
 
     txmsg.id = axis->config_.can_node_id << NUM_CMD_ID_BITS;
     txmsg.id += MSG_GET_ENCODER_OFFSET;
@@ -411,15 +411,16 @@ void CANSimple::get_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
     odCAN->write(txmsg);
 }
 
-void CANSimple::set_encoder_offset_callback(Axis* axis, CAN_message_t& msg) {
-    int32_t offset = get_32bit_val(msg, 0);
-    int32_t linear_count = get_32bit_val(msg, 4);
+void CANSimple::set_encoder_offset_callback(Axis* axis, can_Message_t& msg) {
+    int32_t offset = can_getSignal<int32_t>(msg, 0, 32, true);
+    int32_t linear_count = can_getSignal<int32_t>(msg, 32, 32, true);
     axis->encoder_.set_circular_count(0, false);
     axis->encoder_.set_linear_count(linear_count);
     axis->encoder_.pos_cpr_ = 0;
     axis->controller_.pos_setpoint_ = linear_count;
     axis->encoder_.config_.offset = offset;
     axis->encoder_.is_ready_ = true;
+}
 
 void CANSimple::send_heartbeat(Axis* axis) {
     can_Message_t txmsg;

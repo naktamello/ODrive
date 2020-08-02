@@ -80,7 +80,6 @@ extern "C" int load_configuration(void) {
             controller_configs[i] = Controller::Config_t();
             motor_configs[i] = Motor::Config_t();
             trap_configs[i] = TrapezoidalTrajectory::Config_t();
-            cubic_configs[i] = CubicTrajectory::Config_t();
             axis_configs[i] = Axis::Config_t();
             // Default step/dir pins are different, so we need to explicitly load them
             Axis::load_default_step_dir_pin_config(hw_configs[i].axis_config, &axis_configs[i]);

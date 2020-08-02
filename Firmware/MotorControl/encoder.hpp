@@ -167,7 +167,7 @@ public:
                 make_protocol_property("idx_search_unidirectional", &config_.idx_search_unidirectional),
                 make_protocol_property("ignore_illegal_hall_state", &config_.ignore_illegal_hall_state),
                 make_protocol_property("sincos_gpio_pin_sin", &config_.sincos_gpio_pin_sin),
-                make_protocol_property("sincos_gpio_pin_cos", &config_.sincos_gpio_pin_cos)
+                make_protocol_property("sincos_gpio_pin_cos", &config_.sincos_gpio_pin_cos),
                 make_protocol_property("min_pos", &config_.min_pos_),
                 make_protocol_property("max_pos", &config_.max_pos_)
             ),

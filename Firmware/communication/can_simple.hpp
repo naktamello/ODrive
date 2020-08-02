@@ -66,8 +66,8 @@ class CANSimple {
     static void get_sensorless_estimates_callback(Axis* axis, can_Message_t& msg);
     static void get_vbus_voltage_callback(Axis* axis, can_Message_t& msg);
     static void clear_errors_callback(Axis* axis, can_Message_t& msg);
-    static void get_encoder_offset_callback(Axis* axis, CAN_message_t& msg);
-    static void set_encoder_offset_callback(Axis* axis, CAN_message_t& msg);
+    static void get_encoder_offset_callback(Axis* axis, can_Message_t& msg);
+    static void set_encoder_offset_callback(Axis* axis, can_Message_t& msg);
     // Utility functions
     static uint32_t get_node_id(uint32_t msgID);
     static uint8_t get_cmd_id(uint32_t msgID);
