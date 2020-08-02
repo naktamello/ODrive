@@ -18,6 +18,7 @@ public:
         ERROR_ABS_SPI_TIMEOUT = 0x40,
         ERROR_ABS_SPI_COM_FAIL = 0x80,
         ERROR_ABS_SPI_NOT_READY = 0x100,
+        ERROR_SOFTWARE_ENDSTOP = 0x1000,
     };
 
     enum Mode_t {
@@ -53,6 +54,8 @@ public:
         uint16_t abs_spi_cs_gpio_pin = 1;
         uint16_t sincos_gpio_pin_sin = 3;
         uint16_t sincos_gpio_pin_cos = 4;
+        int32_t min_pos_ = 0;
+        int32_t max_pos_ = 0;
     };
 
     Encoder(const EncoderHardwareConfig_t& hw_config,
@@ -165,6 +168,8 @@ public:
                 make_protocol_property("ignore_illegal_hall_state", &config_.ignore_illegal_hall_state),
                 make_protocol_property("sincos_gpio_pin_sin", &config_.sincos_gpio_pin_sin),
                 make_protocol_property("sincos_gpio_pin_cos", &config_.sincos_gpio_pin_cos)
+                make_protocol_property("min_pos", &config_.min_pos_),
+                make_protocol_property("max_pos", &config_.max_pos_)
             ),
             make_protocol_function("set_linear_count", *this, &Encoder::set_linear_count, "count")
         );

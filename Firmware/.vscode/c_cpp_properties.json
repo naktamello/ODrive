@@ -37,7 +37,15 @@
                 "__GNUC__"
             ],
             "intelliSenseMode": "gcc-x64",
-            "compilerPath": "arm-none-eabi-g++ -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -specs=nosys.specs -specs=nano.specs -u _printf_float -u _scanf_float",
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc -mthumb -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard -specs=nosys.specs -specs=nano.specs -u _printf_float -u _scanf_float",
+            "browse": {
+                "path": [
+                    "${workspaceRoot}",
+                    "${ARM_GCC_ROOT}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
             "cStandard": "c11",
             "cppStandard": "c++17"
         },

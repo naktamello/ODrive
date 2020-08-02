@@ -10,10 +10,12 @@
 #include <spi.h>
 #include <tim.h>
 #include <main.h>
-
+// #define BOOSTXL 0
 #if HW_VERSION_MAJOR == 3
 #if HW_VERSION_MINOR <= 3
 #define SHUNT_RESISTANCE (675e-6f)
+// #elif BOOSTXL == 1
+// #define SHUNT_RESISTANCE 0.01f
 #else
 #define SHUNT_RESISTANCE (500e-6f)
 #endif

@@ -12,7 +12,7 @@
             "name": "Debug ODrive - ST-Link",
             "executable": "${workspaceRoot}/build/ODriveFirmware.elf",
             "configFiles": [
-                "interface/stlink-v2.cfg",
+                "interface/stlink.cfg",
                 "target/stm32f4x_stlink.cfg",
             ],
             "svdFile": "${workspaceRoot}/Board/v3/STM32F40x.svd",
@@ -27,7 +27,7 @@
             "executable": "${workspaceRoot}/build/ODriveFirmware.elf",
             "rtos": "FreeRTOS",
             "configFiles": [
-                "interface/stlink-v2.cfg",
+                "interface/stlink.cfg",
                 "target/stm32f4x_stlink.cfg",
             ],
             "svdFile": "${workspaceRoot}/Board/v3/STM32F40x.svd",

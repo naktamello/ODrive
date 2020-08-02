@@ -169,6 +169,7 @@ build{
         'MotorControl/controller.cpp',
         'MotorControl/sensorless_estimator.cpp',
         'MotorControl/trapTraj.cpp',
+        'MotorControl/cubicTraj.cpp',
         'MotorControl/main.cpp',
         'communication/can_simple.cpp',
         'communication/communication.cpp',

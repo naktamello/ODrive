@@ -51,6 +51,7 @@
 			"condition_variable": "cpp",
 			"future": "cpp",
 			"arm_math.h": "c",
+<<<<<<< HEAD
 			"iostream": "cpp",
 			"cmath": "cpp",
 			"csignal": "cpp",
@@ -63,6 +64,10 @@
 			"optional": "cpp",
 			"sstream": "cpp",
 			"utils.h": "c"
+=======
+			"cmath": "cpp",
+			"usb_device.h": "c"
+>>>>>>> cubic_traj
 		}
 	}
 }
